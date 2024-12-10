@@ -21,7 +21,7 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="updated_at", type="string", format="date-time", description="Waktu pembaruan")
  * )
  */
-class TentangController extends BaseController
+class TentangControllers extends BaseController
 {
     /**
      * @OA\Post(
