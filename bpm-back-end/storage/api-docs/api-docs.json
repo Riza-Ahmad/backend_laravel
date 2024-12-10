@@ -1,0 +1,454 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Dokumentasi API",
+        "description": "API Documentation",
+        "contact": {
+            "email": "ekoabdulgoffar129@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "API_URL",
+            "description": "API Documentation"
+        }
+    ],
+    "paths": {
+        "/api/berita": {
+            "get": {
+                "tags": [
+                    "Berita"
+                ],
+                "summary": "Ambil semua data berita",
+                "operationId": "a89628d39fc00d962550ecf5f6f022ac",
+                "responses": {
+                    "200": {
+                        "description": "Daftar berita",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Berita"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Berita"
+                ],
+                "summary": "Buat berita baru",
+                "operationId": "3c01851dd279886f5723bea2196dac13",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "content": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Berita created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Berita"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/berita/{id}": {
+            "get": {
+                "tags": [
+                    "Berita"
+                ],
+                "summary": "Ambil berita berdasarkan ID",
+                "operationId": "142a68d3e2ae29fba90583cd5627908d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID berita",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail berita",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Berita"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Berita not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Berita"
+                ],
+                "summary": "Update berita",
+                "operationId": "5f7a129e971c48e2fedd33c317e4be13",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID berita",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "content": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berita updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Berita"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Berita"
+                ],
+                "summary": "Hapus berita",
+                "operationId": "32b6da703d3a3ea7a1ed6e7f308b43ee",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID berita",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berita deleted successfully"
+                    }
+                }
+            }
+        },
+        "/api/tentang/getDataTentang": {
+            "post": {
+                "tags": [
+                    "Tentang"
+                ],
+                "summary": "Get all Tentang data",
+                "operationId": "getDataTentang",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Tentang"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/api/tentang/getDataTentangById": {
+            "post": {
+                "tags": [
+                    "Tentang"
+                ],
+                "summary": "Get Tentang data by ID",
+                "operationId": "getDataTentangById",
+                "parameters": [
+                    {
+                        "name": "ten_id",
+                        "in": "query",
+                        "description": "Tentang ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Tentang"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Data Not Found"
+                    }
+                }
+            }
+        },
+        "/api/tentang/editTentang": {
+            "post": {
+                "tags": [
+                    "Tentang"
+                ],
+                "summary": "Edit Tentang data",
+                "operationId": "editTentang",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "ten_id",
+                                    "ten_category",
+                                    "ten_isi",
+                                    "ten_status",
+                                    "ten_modif_by"
+                                ],
+                                "properties": {
+                                    "ten_id": {
+                                        "type": "integer"
+                                    },
+                                    "ten_category": {
+                                        "type": "string"
+                                    },
+                                    "ten_isi": {
+                                        "type": "string"
+                                    },
+                                    "ten_status": {
+                                        "type": "integer"
+                                    },
+                                    "ten_modif_by": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Data berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Data Not Found"
+                    }
+                }
+            }
+        },
+        "/api/tentang/uploadFile": {
+            "post": {
+                "tags": [
+                    "Tentang"
+                ],
+                "summary": "Upload file for Tentang",
+                "operationId": "uploadFile",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "File uploaded successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "file_name": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Berita": {
+                "required": [
+                    "id",
+                    "title",
+                    "content"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID Berita",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "Judul Berita",
+                        "type": "string"
+                    },
+                    "content": {
+                        "description": "Isi Berita",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "description": "Tanggal dibuat",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Tanggal diperbarui",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Tentang": {
+                "properties": {
+                    "ten_id": {
+                        "description": "ID Tentang",
+                        "type": "integer"
+                    },
+                    "ten_category": {
+                        "description": "Kategori Tentang",
+                        "type": "string"
+                    },
+                    "ten_isi": {
+                        "description": "Isi Tentang",
+                        "type": "string"
+                    },
+                    "ten_status": {
+                        "description": "Status Tentang",
+                        "type": "integer"
+                    },
+                    "ten_modif_by": {
+                        "description": "Diubah oleh",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "description": "Waktu pembuatan",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Waktu pembaruan",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Enter token",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Berita",
+            "description": "Berita"
+        },
+        {
+            "name": "Tentang",
+            "description": "Tentang"
+        }
+    ]
+}
