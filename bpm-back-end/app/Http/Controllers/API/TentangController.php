@@ -1,98 +1,99 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Models\Tentang;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Validator;
-use App\Models\MasterTentang;
+use Illuminate\Routing\Controller as BaseController;
+use OpenApi\Annotations as OA;
 
-class MasterTentangController extends Controller
+/**
+ * @OA\Schema(
+ *     schema="Tentang",
+ *     type="object",
+ *     @OA\Property(property="ten_id", type="integer", description="ID Tentang"),
+ *     @OA\Property(property="ten_category", type="string", description="Kategori Tentang"),
+ *     @OA\Property(property="ten_isi", type="string", description="Isi Tentang"),
+ *     @OA\Property(property="ten_status", type="integer", description="Status Tentang"),
+ *     @OA\Property(property="ten_modif_by", type="string", description="Diubah oleh"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", description="Waktu pembuatan"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", description="Waktu pembaruan")
+ * )
+ */
+class TentangController extends BaseController
 {
-    protected $connection;
-
-    public function __construct()
-    {
-        // Set the database connection string (use your own settings)
-        $this->connection = env('DB_CONNECTION', 'mysql');
-    }
-
     /**
-     * Get all 'Tentang' data
-     *
-     * @return \Illuminate\Http\Response
-     * @OA\Get(
-     *     path="/api/master_tentang/data",
+     * @OA\Post(
+     *     path="/api/tentang/getDataTentang",
      *     summary="Get all Tentang data",
-     *     tags={"Master Tentang"},
+     *     operationId="getDataTentang",
+     *     tags={"Tentang"},
      *     @OA\Response(
      *         response=200,
-     *         description="List of Tentang data",
-     *         @OA\JsonContent(type="array", @OA\Items(type="object"))
-     *     )
+     *         description="Success",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Tentang"))
+     *     ),
+     *     @OA\Response(response=400, description="Bad Request")
      * )
      */
     public function getDataTentang()
     {
         try {
-            $data = DB::select('EXEC bpm_getDataTentang');
+            $data = Tentang::all();
             return response()->json($data, 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Gagal mengambil data'], 400);
+            return response()->json(['message' => 'Gagal mengambil data', 'error' => $e->getMessage()], 400);
         }
     }
 
     /**
-     * Get Tentang data by ID
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      * @OA\Post(
-     *     path="/api/master_tentang/data_by_id",
+     *     path="/api/tentang/getDataTentangById",
      *     summary="Get Tentang data by ID",
-     *     tags={"Master Tentang"},
-     *     @OA\RequestBody(
+     *     operationId="getDataTentangById",
+     *     tags={"Tentang"},
+     *     @OA\Parameter(
+     *         name="ten_id",
+     *         in="query",
+     *         description="Tentang ID",
      *         required=true,
-     *         @OA\JsonContent(
-     *             required={"ten_id"},
-     *             @OA\Property(property="ten_id", type="integer")
-     *         )
+     *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Tentang data by ID",
-     *         @OA\JsonContent(type="array", @OA\Items(type="object"))
-     *     )
+     *         description="Success",
+     *         @OA\JsonContent(ref="#/components/schemas/Tentang")
+     *     ),
+     *     @OA\Response(response=400, description="Bad Request"),
+     *     @OA\Response(response=404, description="Data Not Found")
      * )
      */
     public function getDataTentangById(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'ten_id' => 'required|integer',
-            ]);
+        $validated = Validator::make($request->all(), [
+            'ten_id' => 'required|integer'
+        ]);
 
-            $tenId = $validated['ten_id'];
-            $data = DB::select('EXEC bpm_getDataTentangById @ten_id = ?', [$tenId]);
-
-            return response()->json($data, 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Gagal mengambil data berdasarkan ID'], 400);
+        if ($validated->fails()) {
+            return response()->json(['errors' => $validated->errors()], 400);
         }
+
+        $data = Tentang::find($request->ten_id);
+
+        if (!$data) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
+
+        return response()->json($data, 200);
     }
 
     /**
-     * Edit Tentang data
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      * @OA\Post(
-     *     path="/api/master_tentang/edit",
+     *     path="/api/tentang/editTentang",
      *     summary="Edit Tentang data",
-     *     tags={"Master Tentang"},
+     *     operationId="editTentang",
+     *     tags={"Tentang"},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -106,84 +107,72 @@ class MasterTentangController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Tentang data updated successfully",
-     *         @OA\JsonContent(type="array", @OA\Items(type="object"))
-     *     )
+     *         description="Data berhasil diperbarui",
+     *         @OA\JsonContent(type="object", @OA\Property(property="message", type="string"))
+     *     ),
+     *     @OA\Response(response=400, description="Bad Request"),
+     *     @OA\Response(response=404, description="Data Not Found")
      * )
      */
     public function editTentang(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'ten_id' => 'required|integer',
-                'ten_category' => 'required|string',
-                'ten_isi' => 'required|string',
-                'ten_status' => 'required|integer',
-                'ten_modif_by' => 'required|string',
-            ]);
+        $validated = Validator::make($request->all(), [
+            'ten_id' => 'required|integer',
+            'ten_category' => 'required|string',
+            'ten_isi' => 'required|string',
+            'ten_status' => 'required|integer',
+            'ten_modif_by' => 'required|string'
+        ]);
 
-            $tenId = $validated['ten_id'];
-            $tenCategory = $validated['ten_category'];
-            $tenIsi = $validated['ten_isi'];
-            $tenStatus = $validated['ten_status'];
-            $tenModifBy = $validated['ten_modif_by'];
-
-            $data = DB::select('EXEC bpm_editTentang ?, ?, ?, ?, ?, ?', [
-                $tenId,
-                $tenCategory,
-                $tenIsi,
-                $tenStatus,
-                $tenModifBy,
-                now(),
-            ]);
-
-            return response()->json($data, 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Gagal memperbarui data'], 400);
+        if ($validated->fails()) {
+            return response()->json(['errors' => $validated->errors()], 400);
         }
+
+        $tentang = Tentang::find($request->ten_id);
+        if (!$tentang) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
+
+        $tentang->update($request->all());
+
+        return response()->json(['message' => 'Data berhasil diperbarui'], 200);
     }
 
     /**
-     * Upload file
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      * @OA\Post(
-     *     path="/api/master_tentang/upload_file",
-     *     summary="Upload file",
-     *     tags={"Master Tentang"},
+     *     path="/api/tentang/uploadFile",
+     *     summary="Upload file for Tentang",
+     *     operationId="uploadFile",
+     *     tags={"Tentang"},
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="multipart/form-data",
-     *             @OA\Schema(
-     *                 type="object",
-     *                 required={"file"},
-     *                 @OA\Property(property="file", type="file")
-     *             )
-     *         )
+     *         @OA\MediaType(mediaType="multipart/form-data", @OA\Schema(
+     *             type="object",
+     *             @OA\Property(property="file", type="string", format="binary")
+     *         ))
      *     ),
      *     @OA\Response(
      *         response=200,
      *         description="File uploaded successfully",
-     *         @OA\JsonContent(type="object", @OA\Property(property="Hasil", type="string"))
-     *     )
+     *         @OA\JsonContent(type="object", @OA\Property(property="file_name", type="string"))
+     *     ),
+     *     @OA\Response(response=400, description="Bad Request")
      * )
      */
     public function uploadFile(Request $request)
     {
-        if (!$request->hasFile('file')) {
-            return response()->json(['message' => 'No file uploaded or the file is empty.'], 400);
+        if (!$request->hasFile('file') || !$request->file('file')->isValid()) {
+            return response()->json(['message' => 'Tidak ada file yang diunggah atau file tidak valid'], 400);
         }
 
         try {
             $file = $request->file('file');
-            $fileName = "FILE_" . uniqid() . "_" . now()->format('YmdHis') . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('public/Tentang', $fileName);
+            $fileName = 'FILE_' . uniqid() . '_' . now()->format('YmdHis') . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('public/Tentang', $fileName);
 
-            return response()->json(['Hasil' => $fileName], 200);
+            return response()->json(['file_name' => $fileName], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'An error occurred while uploading the file.', 'error' => $e->getMessage()], 400);
+            return response()->json(['message' => 'Gagal mengunggah file', 'error' => $e->getMessage()], 400);
         }
     }
 }
